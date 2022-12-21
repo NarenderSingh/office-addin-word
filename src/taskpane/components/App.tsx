@@ -5,6 +5,7 @@ import { AuthCodeMSALBrowserAuthenticationProvider } from "@microsoft/microsoft-
 import config from "./Config";
 import { InteractionType, PublicClientApplication } from "@azure/msal-browser";
 import { GraphService } from "./GraphService";
+import { toast, ToastContainer } from "react-toastify";
 
 const graphService = new GraphService();
 
@@ -26,14 +27,25 @@ const App = (props: AppProps) => {
     interactionType: InteractionType.Popup,
   });
 
+  React.useEffect(() => {
+    authProvider.getAccessToken().then(() => {
+      getUserInfo();
+    });
+  }, []);
+
   const signIn = async () => {
     await msal.instance.loginPopup({
       scopes: config.scopes,
       prompt: "select_account",
     });
-    const user = await graphService.getUser(authProvider);
-    setCurrentUser(user);
-    getFileInfo();
+    getUserInfo();
+  };
+
+  const getUserInfo = () => {
+    graphService.getUser(authProvider).then((user: any) => {
+      setCurrentUser(user);
+      getFileInfo();
+    });
   };
 
   const getFileInfo = async () => {
@@ -41,7 +53,6 @@ const App = (props: AppProps) => {
       Office.context.document.getFilePropertiesAsync((asyncResult) => {
         const fileUrl = asyncResult.value.url;
         setDocumentPath(fileUrl);
-
         var fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
         setDocumentName(fileName);
       });
@@ -49,9 +60,12 @@ const App = (props: AppProps) => {
     });
   };
 
-  const createMeeting = () => {
+  const createCiTMeeting = () => {
     getFileInfo();
-    console.log(currentUser, documentName);
+    setTimeout(() => {
+      toast.success("CiT Meeting created successfully!");
+      // toast.error("An Error occured");
+    }, 500);
   };
 
   return (
@@ -63,11 +77,10 @@ const App = (props: AppProps) => {
           message="Please sideload your addin to see app body."
         />
       )}
-      <img src={require("./../../../assets/icon-16.png")} style={{ height: "50px" }} alt="" />
+      <img src={require("./../../../assets/icon-16.png")} style={{ height: "45px" }} alt="" />
       <label>
-        <b style={{ fontSize: "18px" }}>Convene in Teams</b>
+        <b style={{ fontSize: "16px" }}>Convene in Teams</b>
       </label>
-      <br />
       <br />
       <AuthenticatedTemplate>
         <div>
@@ -76,30 +89,18 @@ const App = (props: AppProps) => {
           </h5>
         </div>
         <table className="table table-border">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Value</th>
-            </tr>
-          </thead>
           <tbody>
             <tr>
               <td>
-                <b>Id</b>
-              </td>
-              <td>{currentUser?.id}</td>
-            </tr>
-            <tr>
-              <td>
-                <b>Email Address</b>
-              </td>
-              <td>{currentUser?.mail}</td>
-            </tr>
-            <tr>
-              <td>
-                <b>Display Name</b>
+                <b>Name</b>
               </td>
               <td>{currentUser?.displayName}</td>
+            </tr>
+            <tr>
+              <td>
+                <b>Email</b>
+              </td>
+              <td>{currentUser?.mail}</td>
             </tr>
             <tr>
               <td>
@@ -115,28 +116,66 @@ const App = (props: AppProps) => {
             </tr>
             <tr>
               <td>
-                <b>File URL</b>
-              </td>
-              <td>{documentPath}</td>
-            </tr>
-            <tr>
-              <td>
                 <b>File Name</b>
               </td>
               <td>{documentName}</td>
             </tr>
+            <tr>
+              <td>
+                <b>File URL</b>
+              </td>
+              <td>{documentPath}</td>
+            </tr>
           </tbody>
         </table>
         <br />
-        <button type="button" className="ms-welcome__action" onClick={createMeeting}>
-          Create Meeting in CiT Admin with this Document
-        </button>
+        <div className="text-center">
+          <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Create Meeting in CiT Admin with this Document
+          </button>
+        </div>
+
+        <div
+          className="modal fade"
+          id="exampleModal"
+          tabIndex={-1}
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h1 className="modal-title fs-5" id="exampleModalLabel">
+                  Create Meeting Confirmation
+                </h1>
+                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div className="modal-body">
+                <p>
+                  By clicking Create Meeting button, you will be creating a new meeting in CiT Admin portal with this
+                  document as attachment in agenda.
+                </p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+                  Close
+                </button>
+                <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={createCiTMeeting}>
+                  Create Meeting
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </AuthenticatedTemplate>
       <UnauthenticatedTemplate>
-        <button type="button" className="ms-welcome__action" onClick={signIn}>
-          Sign In
-        </button>
+        <div className="text-center">
+          <button type="button" className="ms-welcome__action" onClick={signIn}>
+            Sign In
+          </button>
+        </div>
       </UnauthenticatedTemplate>
+      <ToastContainer />
     </React.Fragment>
   );
 };

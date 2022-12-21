@@ -33,7 +33,7 @@ msalInstance.addEventCallback((event: any) => {
 
 initializeIcons();
 let isOfficeInitialized = false;
-const title = "CiT Add-in";
+const title = "CiT Task Pane";
 
 const render = (Component: any) => {
   ReactDOM.render(

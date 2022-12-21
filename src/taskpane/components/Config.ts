@@ -5,3 +5,5 @@ const config = {
 };
 
 export default config;
+
+//https://yellow-cliff-0a651cf10.2.azurestaticapps.net/index.html
