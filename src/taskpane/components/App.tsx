@@ -1,7 +1,6 @@
 import * as React from "react";
-import { DefaultButton } from "@fluentui/react";
 import Progress from "./Progress";
-import { AuthenticatedTemplate, useMsal } from "@azure/msal-react";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 import { AuthCodeMSALBrowserAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/authCodeMsalBrowser";
 import config from "./Config";
 import { InteractionType, PublicClientApplication } from "@azure/msal-browser";
@@ -28,34 +27,17 @@ const App = (props: AppProps) => {
   });
 
   const signIn = async () => {
-    const result = await msal.instance.loginPopup({
+    await msal.instance.loginPopup({
       scopes: config.scopes,
       prompt: "select_account",
     });
-
-    console.log("Result", result);
     const user = await graphService.getUser(authProvider);
-    console.log("user", user);
     setCurrentUser(user);
+    getFileInfo();
   };
 
-  const signOut = async () => {
-    await msal.instance.logoutPopup();
-  };
-
-  const click = async () => {
-    signIn();
+  const getFileInfo = async () => {
     return Word.run(async (context) => {
-      const document = context.document.body;
-      context.load(document, ["*"]);
-      context
-        .sync()
-        .then(context.sync)
-        .then(() => {
-          console.log("document", document);
-        })
-        .then(context.sync);
-
       Office.context.document.getFilePropertiesAsync((asyncResult) => {
         const fileUrl = asyncResult.value.url;
         setDocumentPath(fileUrl);
@@ -63,12 +45,13 @@ const App = (props: AppProps) => {
         var fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
         setDocumentName(fileName);
       });
-
-      // console.log(Office.context.host.toString());
-      // console.log(Office.context.contentLanguage.toString());
-      // console.log(Office.context.document.url);
       await context.sync();
     });
+  };
+
+  const createMeeting = () => {
+    getFileInfo();
+    console.log(currentUser, documentName);
   };
 
   return (
@@ -92,10 +75,6 @@ const App = (props: AppProps) => {
             <b>Hello {currentUser?.displayName}</b>
           </h5>
         </div>
-        {/* <button type="button" className="btn btn-secondary btn-sm" onClick={signOut}>
-          Sign Out
-        </button> */}
-        <br />
         <table className="table table-border">
           <thead>
             <tr>
@@ -148,17 +127,16 @@ const App = (props: AppProps) => {
             </tr>
           </tbody>
         </table>
+        <br />
+        <button type="button" className="ms-welcome__action" onClick={createMeeting}>
+          Create Meeting in CiT Admin with this Document
+        </button>
       </AuthenticatedTemplate>
-      {/* <UnauthenticatedTemplate>
-        <button type="button" className="btn btn-warning" onClick={signIn}>
+      <UnauthenticatedTemplate>
+        <button type="button" className="ms-welcome__action" onClick={signIn}>
           Sign In
         </button>
-      </UnauthenticatedTemplate> */}
-      <div className="ms-welcome">
-        <DefaultButton className="ms-welcome__action" onClick={click}>
-          Get File Info
-        </DefaultButton>
-      </div>
+      </UnauthenticatedTemplate>
     </React.Fragment>
   );
 };
