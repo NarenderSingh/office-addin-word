@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
   <Id>5bed4752-893c-4f00-a81f-82321a7341c8</Id>
-  <Version>1.0.0.3</Version>
+  <Version>1.0.0.4</Version>
   <ProviderName>Convene</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="CiT Task Panel"/>
   <Description DefaultValue="A template to get started."/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
-  <SupportUrl DefaultValue="https://green-ground-05078a610.2.azurestaticapps.net"/>
+  <SupportUrl DefaultValue="https://yellow-cliff-0a651cf10.2.azurestaticapps.net"/>
   <AppDomains>
-    <AppDomain>green-ground-05078a610.2.azurestaticapps.net</AppDomain>
+    <AppDomain>https://yellow-cliff-0a651cf10.2.azurestaticapps.net</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Document"/>

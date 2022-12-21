@@ -169,7 +169,7 @@ const App = (props: AppProps) => {
         </div>
       </AuthenticatedTemplate>
       <UnauthenticatedTemplate>
-        <div className="text-center">
+        <div className="ms-welcome">
           <button type="button" className="ms-welcome__action" onClick={signIn}>
             Sign In
           </button>
