@@ -172,7 +172,7 @@ const App = (props: AppProps) => {
       <UnauthenticatedTemplate>
         <div className="ms-welcome">
           <DefaultButton className="ms-welcome__action" onClick={signIn}>
-            Get File Info
+            Sign In
           </DefaultButton>
         </div>
       </UnauthenticatedTemplate>
