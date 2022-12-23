@@ -6,6 +6,7 @@ import config from "./Config";
 import { InteractionType, PublicClientApplication } from "@azure/msal-browser";
 import { GraphService } from "./GraphService";
 import { toast, ToastContainer } from "react-toastify";
+import { DefaultButton } from "@fluentui/react";
 
 const graphService = new GraphService();
 
@@ -170,9 +171,9 @@ const App = (props: AppProps) => {
       </AuthenticatedTemplate>
       <UnauthenticatedTemplate>
         <div className="ms-welcome">
-          <button type="button" className="ms-welcome__action" onClick={signIn}>
-            Sign In
-          </button>
+          <DefaultButton className="ms-welcome__action" onClick={signIn}>
+            Get File Info
+          </DefaultButton>
         </div>
       </UnauthenticatedTemplate>
       <ToastContainer />
