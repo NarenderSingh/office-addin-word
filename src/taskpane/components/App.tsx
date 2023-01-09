@@ -10,16 +10,29 @@ import { DefaultButton } from "@fluentui/react";
 
 const graphService = new GraphService();
 
-export interface AppProps {
+export interface IAppProps {
   title: string;
   isOfficeInitialized: boolean;
 }
 
-const App = (props: AppProps) => {
+export interface IFields {
+  meetingTitle: string;
+  meetingDescription: string;
+  meetingNotes: string;
+  videoConferencing: number;
+}
+
+const App = (props: IAppProps) => {
   const { title, isOfficeInitialized } = props;
   const [currentUser, setCurrentUser] = React.useState<any>({});
   const [documentPath, setDocumentPath] = React.useState<any>(null);
-  const [documentName, setDocumentName] = React.useState<any>(null);
+  const [blocking, setBlocking] = React.useState<boolean>(true);
+  const [fields, SetFields] = React.useState<IFields>({
+    meetingTitle: "",
+    meetingDescription: "",
+    meetingNotes: "",
+    videoConferencing: 0,
+  });
 
   const msal = useMsal();
   const authProvider = new AuthCodeMSALBrowserAuthenticationProvider(msal.instance as PublicClientApplication, {
@@ -55,7 +68,10 @@ const App = (props: AppProps) => {
         const fileUrl = asyncResult.value.url;
         setDocumentPath(fileUrl);
         var fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
-        setDocumentName(fileName);
+        SetFields({
+          ...fields,
+          meetingTitle: trimExtension(fileName),
+        });
       });
       await context.sync();
     });
@@ -67,6 +83,26 @@ const App = (props: AppProps) => {
       toast.success("CiT Meeting created successfully!");
       // toast.error("An Error occured");
     }, 500);
+  };
+
+  const onInputChange = (e: any) => {
+    const value = e.target.value;
+    SetFields({
+      ...fields,
+      [e.target.name]: value,
+    });
+  };
+
+  const onCheckboxChange = (e: any) => {
+    const value = e.target.checked;
+    SetFields({
+      ...fields,
+      [e.target.name]: value,
+    });
+  };
+
+  const trimExtension = (filename: string) => {
+    return filename.substring(0, filename.lastIndexOf(".")) || filename;
   };
 
   return (
@@ -84,57 +120,83 @@ const App = (props: AppProps) => {
       </label>
       <br />
       <AuthenticatedTemplate>
-        <div>
-          <h5>
+        <div className="pt-4">
+          <h6>
             <b>Hello {currentUser?.displayName}</b>
-          </h5>
+          </h6>
         </div>
-        <table className="table table-border">
-          <tbody>
-            <tr>
-              <td>
-                <b>Name</b>
-              </td>
-              <td>{currentUser?.displayName}</td>
-            </tr>
-            <tr>
-              <td>
-                <b>Email</b>
-              </td>
-              <td>{currentUser?.mail}</td>
-            </tr>
-            <tr>
-              <td>
-                <b>Time Zone</b>
-              </td>
-              <td>{currentUser?.mailboxSettings?.timeZone}</td>
-            </tr>
-            <tr>
-              <td>
-                <b>Language</b>
-              </td>
-              <td>{currentUser?.mailboxSettings?.language?.displayName}</td>
-            </tr>
-            <tr>
-              <td>
-                <b>File Name</b>
-              </td>
-              <td>{documentName}</td>
-            </tr>
-            <tr>
-              <td>
-                <b>File URL</b>
-              </td>
-              <td>{documentPath}</td>
-            </tr>
-          </tbody>
-        </table>
+        <hr />
+        <p className="mt-2">Please enter the details to create CiT Meeting</p>
+        <div>
+          <form>
+            {/* <div className="mb-3">
+              <label className="form-label">Workspace</label>
+              <select className="form-select">
+                <option value="0">Select Workspaces</option>
+                <option value="1">Azeus</option>
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Meeting Type</label>
+              <select className="form-select">
+                <option value="0">Board</option>
+                <option value="1">Companey</option>
+              </select>
+            </div> */}
+            <div className="mb-3">
+              <label className="form-label">Meeting Title</label>
+              <input
+                type="text"
+                className="form-control"
+                name="meetingTitle"
+                value={fields.meetingTitle}
+                onChange={onInputChange}
+              />
+              {/* <div className="form-text">Meeting description</div> */}
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Meeting Description</label>
+              <textarea
+                name="meetingDescription"
+                className="form-control"
+                cols={30}
+                rows={2}
+                value={fields.meetingDescription}
+                onChange={onInputChange}
+              ></textarea>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Meeting Notes for Participants</label>
+              <textarea
+                name="meetingNotes"
+                className="form-control"
+                cols={30}
+                rows={2}
+                value={fields.meetingNotes}
+                onChange={onInputChange}
+              ></textarea>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Video Conferencing</label>
+              <div className="input-text">
+                <input
+                  className="form-check-input m-1"
+                  name="videoConferencing"
+                  type="checkbox"
+                  value={fields.videoConferencing}
+                  onChange={onCheckboxChange}
+                />
+                Schedule a video conference meeting in Teams
+              </div>
+            </div>
+            <div className="text-center">
+              <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Create Meeting in CiT Admin with this Document
+              </button>
+            </div>
+          </form>
+        </div>
         <br />
-        <div className="text-center">
-          <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            Create Meeting in CiT Admin with this Document
-          </button>
-        </div>
 
         <div
           className="modal fade"
@@ -153,13 +215,14 @@ const App = (props: AppProps) => {
               </div>
               <div className="modal-body">
                 <p>
-                  By clicking Create Meeting button, you will be creating a new meeting in CiT Admin portal with this
-                  document as attachment in agenda.
+                  By clicking Create Meeting option, a new meeting in CiT Admin portal will be created with this
+                  document as attachment in agenda & with current date and time as schedule. However, you can edit the
+                  details at CiT Admin portal.
                 </p>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
-                  Close
+                  Cancel
                 </button>
                 <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={createCiTMeeting}>
                   Create Meeting

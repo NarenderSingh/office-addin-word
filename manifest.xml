@@ -4,7 +4,7 @@
   <Version>1.0.0.4</Version>
   <ProviderName>Convene</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="CiT Task Panel"/>
+  <DisplayName DefaultValue="CiT Meeting Form"/>
   <Description DefaultValue="A template to get started."/>
   <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-64.png"/>
@@ -73,8 +73,8 @@
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with your sample add-in!"/>
-        <bt:String id="CommandsGroup.Label" DefaultValue="CiT Convene Group"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="CiT Task Pane"/>
+        <bt:String id="CommandsGroup.Label" DefaultValue="Azeus Convene"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="CiT Meeting"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="GetStarted.Description" DefaultValue="Your sample add-in loaded succesfully. Go to the HOME tab and click the 'CiT Convene' button to get started."/>

@@ -33,7 +33,7 @@ msalInstance.addEventCallback((event: any) => {
 
 initializeIcons();
 let isOfficeInitialized = false;
-const title = "CiT Task Pane";
+const title = "CiT Meeting Form";
 
 const render = (Component: any) => {
   ReactDOM.render(
