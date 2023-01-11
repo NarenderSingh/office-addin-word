@@ -33,14 +33,13 @@ msalInstance.addEventCallback((event: any) => {
 
 initializeIcons();
 let isOfficeInitialized = false;
-const title = "CiT Meeting Form";
 
 const render = (Component: any) => {
   ReactDOM.render(
     <AppContainer>
       <MsalProvider instance={msalInstance}>
         <ThemeProvider>
-          <Component title={title} isOfficeInitialized={isOfficeInitialized} />
+          <Component isOfficeInitialized={isOfficeInitialized} />
         </ThemeProvider>
       </MsalProvider>
     </AppContainer>,
