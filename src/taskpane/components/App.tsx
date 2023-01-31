@@ -124,18 +124,18 @@ const App = (props: IAppProps) => {
           </div>
           <div className="row mb-3">
             <label className="form-label">Schedule</label>
-            <div className="col-8">
+            <div className="col-7">
               <input
-                type="text"
+                type="date"
                 className="form-control"
                 name="scheduleDate"
                 value={fields.scheduleDate}
                 onChange={onInputChange}
               />
             </div>
-            <div className="col-4">
+            <div className="col-5">
               <input
-                type="text"
+                type="time"
                 className="form-control"
                 name="scheduleTime"
                 value={fields.scheduleTime}
