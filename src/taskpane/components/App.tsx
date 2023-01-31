@@ -17,8 +17,12 @@ export interface IAppProps {
 
 export interface IFields {
   meetingTitle: string;
+  meetingVenue: string;
+  scheduleDate: string;
+  scheduleTime: string;
   meetingDescription: string;
   meetingNotes: string;
+  includeDocument: number;
   videoConferencing: number;
 }
 
@@ -28,8 +32,12 @@ const App = (props: IAppProps) => {
   // const [documentPath, setDocumentPath] = React.useState<any>(null);
   const [fields, SetFields] = React.useState<IFields>({
     meetingTitle: "",
+    meetingVenue: "",
+    scheduleDate: "",
+    scheduleTime: "",
     meetingDescription: "",
     meetingNotes: "",
+    includeDocument: 1,
     videoConferencing: 0,
   });
 
@@ -102,21 +110,51 @@ const App = (props: IAppProps) => {
         <b style={{ fontSize: "16px" }}>Convene in Teams</b>
       </label>
       <hr />
-      <p className="mt-2">Please enter the details to create CiT Meeting</p>
       <div>
         <form>
           <div className="mb-3">
             <label className="form-label">Meeting Title</label>
             <input
               type="text"
-              className="form-control"
+              className="form-control hello"
               name="meetingTitle"
               value={fields.meetingTitle}
               onChange={onInputChange}
             />
           </div>
+          <div className="row mb-3">
+            <label className="form-label">Schedule</label>
+            <div className="col-8">
+              <input
+                type="text"
+                className="form-control"
+                name="scheduleDate"
+                value={fields.scheduleDate}
+                onChange={onInputChange}
+              />
+            </div>
+            <div className="col-4">
+              <input
+                type="text"
+                className="form-control"
+                name="scheduleTime"
+                value={fields.scheduleTime}
+                onChange={onInputChange}
+              />
+            </div>
+          </div>
           <div className="mb-3">
-            <label className="form-label">Meeting Description</label>
+            <label className="form-label">Venue</label>
+            <input
+              type="text"
+              className="form-control"
+              name="meetingVenue"
+              value={fields.meetingVenue}
+              onChange={onInputChange}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Description</label>
             <textarea
               name="meetingDescription"
               className="form-control"
@@ -127,7 +165,7 @@ const App = (props: IAppProps) => {
             ></textarea>
           </div>
           <div className="mb-3">
-            <label className="form-label">Meeting Notes for Participants</label>
+            <label className="form-label">Notes for Participants</label>
             <textarea
               name="meetingNotes"
               className="form-control"
@@ -138,7 +176,19 @@ const App = (props: IAppProps) => {
             ></textarea>
           </div>
           <div className="mb-3">
-            <label className="form-label">Video Conferencing</label>
+            <div className="input-text">
+              <input
+                className="form-check-input m-1"
+                name="includeDocument"
+                type="checkbox"
+                value={fields.includeDocument}
+                defaultChecked={true}
+                onChange={onCheckboxChange}
+              />
+              Include this document in the meeting
+            </div>
+          </div>
+          <div className="mb-3">
             <div className="input-text">
               <input
                 className="form-check-input m-1"
@@ -152,7 +202,7 @@ const App = (props: IAppProps) => {
           </div>
           <div className="text-center">
             <button type="button" className="btn btn-primary">
-              Create Meeting in CiT Admin with this Document
+              Schedule New Meeting
             </button>
           </div>
         </form>
