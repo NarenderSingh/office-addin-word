@@ -4,32 +4,6 @@ import { initializeIcons } from "@fluentui/font-icons-mdl2";
 import { ThemeProvider } from "@fluentui/react";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { EventType, PublicClientApplication } from "@azure/msal-browser";
-import { MsalProvider } from "@azure/msal-react";
-import config from "./components/Config";
-
-const msalInstance = new PublicClientApplication({
-  auth: {
-    clientId: config.appId,
-    redirectUri: config.redirectUri,
-  },
-  cache: {
-    cacheLocation: "sessionStorage",
-    storeAuthStateInCookie: true,
-  },
-});
-
-const accounts = msalInstance.getAllAccounts();
-if (accounts && accounts.length > 0) {
-  msalInstance.setActiveAccount(accounts[0]);
-}
-
-msalInstance.addEventCallback((event: any) => {
-  if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
-    const authResult = event.payload;
-    msalInstance.setActiveAccount(authResult.account);
-  }
-});
 
 initializeIcons();
 let isOfficeInitialized = false;
@@ -37,13 +11,11 @@ let isOfficeInitialized = false;
 const render = (Component: any) => {
   ReactDOM.render(
     <AppContainer>
-      <MsalProvider instance={msalInstance}>
-        <ThemeProvider>
-          <Component isOfficeInitialized={isOfficeInitialized} />
-        </ThemeProvider>
-      </MsalProvider>
+      <ThemeProvider>
+        <Component isOfficeInitialized={isOfficeInitialized} />
+      </ThemeProvider>
     </AppContainer>,
-    document.getElementById("container")
+    document.getElementById("root-office-app")
   );
 };
 

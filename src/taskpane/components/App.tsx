@@ -1,15 +1,8 @@
 import * as React from "react";
 import Progress from "./Progress";
-// import {
-//   useMsal
-// } from "@azure/msal-react";
-// import { AuthCodeMSALBrowserAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/authCodeMsalBrowser";
-// import config from "./Config";
-// import { InteractionType, PublicClientApplication } from "@azure/msal-browser";
-// import { GraphService } from "./GraphService";
-// import { toast, ToastContainer } from "react-toastify";
-
-// const graphService = new GraphService();
+import { ToastContainer } from "react-toastify";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -24,12 +17,20 @@ export interface IFields {
   meetingNotes: string;
   includeDocument: number;
   videoConferencing: number;
+  isMeetingTitleDirty: boolean;
+  isScheduleDateDirty: boolean;
+  isScheduleTimeDirty: boolean;
+  filePath: string;
+}
+
+export enum MEETING {
+  MEETING_TITLE = "meetingTitle",
+  SCHEDULE_DATE = "scheduleDate",
+  SCHEDULE_TIME = "scheduleTime",
 }
 
 const App = (props: IAppProps) => {
   const { isOfficeInitialized } = props;
-  // const [currentUser, setCurrentUser] = React.useState<any>({});
-  // const [documentPath, setDocumentPath] = React.useState<any>(null);
   const [fields, SetFields] = React.useState<IFields>({
     meetingTitle: "",
     meetingVenue: "",
@@ -39,49 +40,59 @@ const App = (props: IAppProps) => {
     meetingNotes: "",
     includeDocument: 1,
     videoConferencing: 0,
+    isMeetingTitleDirty: false,
+    isScheduleDateDirty: false,
+    isScheduleTimeDirty: false,
+    filePath: "",
   });
-
-  // const msal = useMsal();
-  // const authProvider = new AuthCodeMSALBrowserAuthenticationProvider(
-  //   msal.instance as PublicClientApplication,
-  //   {
-  //     account: msal.instance.getActiveAccount()!,
-  //     scopes: config.scopes,
-  //     interactionType: InteractionType.Popup,
-  //   }
-  // );
+  const [show, setShow] = React.useState(false);
 
   React.useEffect(() => {
-    // authProvider.getAccessToken().then(() => {
-    //   getFileInfo();
-    // });
     getFileInfo();
   }, []);
 
-  // const getUserInfo = () => {
-  //   graphService.getUser(authProvider).then((user: any) => {
-  //     setCurrentUser(user);
-  //     getFileInfo();
-  //   });
-  // };
-
   const getFileInfo = async () => {
     Office.context.document.getFilePropertiesAsync((asyncResult) => {
-      const fileUrl = asyncResult.value.url;
-      var fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+      const filePath = asyncResult.value.url;
+      var fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
       SetFields({
         ...fields,
         meetingTitle: trimExtension(fileName),
+        filePath: filePath,
       });
     });
   };
 
+  const handleShow = () => setShow(true);
+  const handleClose = () => setShow(false);
+
   const onInputChange = (e: any) => {
     const value = e.target.value;
-    SetFields({
-      ...fields,
-      [e.target.name]: value,
-    });
+
+    if (e.target.name === MEETING.MEETING_TITLE) {
+      SetFields({
+        ...fields,
+        isMeetingTitleDirty: true,
+        [e.target.name]: value,
+      });
+    } else if (e.target.name === MEETING.SCHEDULE_DATE) {
+      SetFields({
+        ...fields,
+        isScheduleDateDirty: true,
+        [e.target.name]: value,
+      });
+    } else if (e.target.name === MEETING.SCHEDULE_TIME) {
+      SetFields({
+        ...fields,
+        isScheduleTimeDirty: true,
+        [e.target.name]: value,
+      });
+    } else {
+      SetFields({
+        ...fields,
+        [e.target.name]: value,
+      });
+    }
   };
 
   const onCheckboxChange = (e: any) => {
@@ -96,6 +107,59 @@ const App = (props: IAppProps) => {
     return filename.substring(0, filename.lastIndexOf(".")) || filename;
   };
 
+  const onScheduleNewMeeting = () => {
+    let _fields = {
+      isMeetingTitleDirty: false,
+      isScheduleDateDirty: false,
+      isScheduleTimeDirty: false,
+      isDirty: false,
+    };
+    if (fields?.meetingTitle == "" || !fields.isMeetingTitleDirty) {
+      _fields.isMeetingTitleDirty = true;
+      _fields.isDirty = true;
+    }
+    if (fields?.scheduleDate == "" || !fields.isScheduleDateDirty) {
+      _fields.isScheduleDateDirty = true;
+      _fields.isDirty = true;
+    }
+    if (fields?.scheduleTime == "" || !fields.isScheduleTimeDirty) {
+      _fields.isScheduleTimeDirty = true;
+      _fields.isDirty = true;
+    }
+
+    const value: IFields = {
+      ...fields,
+      isMeetingTitleDirty: _fields.isMeetingTitleDirty,
+      isScheduleDateDirty: _fields.isScheduleDateDirty,
+      isScheduleTimeDirty: _fields.isScheduleTimeDirty,
+    };
+
+    if (_fields.isDirty) {
+      SetFields({
+        ...value,
+      });
+    } else {
+      handleShow();
+    }
+  };
+
+  const onClickContinue = () => {
+    const model = {
+      meetingTitle: fields.meetingTitle,
+      meetingVenue: fields.meetingVenue,
+      scheduleDate: fields.scheduleDate,
+      scheduleTime: fields.scheduleTime,
+      meetingDescription: fields.meetingDescription,
+      meetingNotes: fields.meetingNotes,
+      includeDocument: fields.includeDocument == 1 ? true : false,
+      videoConferencing: fields.videoConferencing == 1 ? true : false,
+      filePath: fields.filePath,
+      timeZoneOffset: new Date().getTimezoneOffset(),
+    };
+
+    console.log(model);
+  };
+
   return (
     <React.Fragment>
       {!isOfficeInitialized && (
@@ -105,32 +169,43 @@ const App = (props: IAppProps) => {
           message="Please sideload your addin to see app body."
         />
       )}
-      <img src={require("./../../../assets/icon-16.png")} style={{ height: "45px" }} alt="" />
-      <label>
-        <b style={{ fontSize: "16px" }}>Convene in Teams</b>
-      </label>
-      <hr />
+      <div className="mb-3 mt-2">
+        <img src={require("./../../../assets/icon-16.png")} style={{ height: "45px" }} alt="" />
+        <label>
+          <b style={{ fontSize: "16px" }}>Convene in Teams</b>
+        </label>
+      </div>
+
       <div>
         <form>
           <div className="mb-3">
-            <label className="form-label">Meeting Title</label>
+            <label className="form-label">
+              Meeting Title <span className="required">*</span>
+            </label>
             <input
               type="text"
-              className="form-control hello"
+              className={`form-control ${fields?.meetingTitle == "" && fields.isMeetingTitleDirty ? "danger" : ""}`}
               name="meetingTitle"
               title="meetingTitle"
               value={fields.meetingTitle}
               onChange={onInputChange}
             />
+            {fields?.meetingTitle == "" && fields.isMeetingTitleDirty && (
+              <span className="required">
+                <i className="fa fa-exclamation-circle" aria-hidden="true"></i> Please enter the Meeting Title
+              </span>
+            )}
           </div>
           <div className="row mb-3">
-            <label className="form-label">Schedule</label>
+            <label className="form-label">
+              Schedule <span className="required">*</span>
+            </label>
             <div className="col-7">
               <input
                 type="date"
                 name="scheduleDate"
                 title="scheduleDate"
-                className="form-control"
+                className={`form-control ${fields?.scheduleDate == "" && fields.isScheduleDateDirty ? "danger" : ""}`}
                 value={fields.scheduleDate}
                 onChange={onInputChange}
               />
@@ -140,11 +215,16 @@ const App = (props: IAppProps) => {
                 name="scheduleTime"
                 title="scheduleTime"
                 type="time"
-                className="form-control"
+                className={`form-control ${fields?.scheduleTime == "" && fields.isScheduleTimeDirty ? "danger" : ""}`}
                 value={fields.scheduleTime}
                 onChange={onInputChange}
               />
             </div>
+            {((fields?.scheduleDate == "" && fields.isScheduleDateDirty) || (fields?.scheduleTime == "" && fields.isScheduleTimeDirty)) && (
+              <span className="required">
+                <i className="fa fa-exclamation-circle" aria-hidden="true"></i> Please select the Schedule
+              </span>
+            )}
           </div>
           <div className="mb-3">
             <label className="form-label">Venue</label>
@@ -208,47 +288,39 @@ const App = (props: IAppProps) => {
               Schedule a video conference meeting in Teams
             </div>
           </div>
-          <div className="text-center">
-            <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          <div className="row add-left">
+            <button
+              type="button"
+              className="btn btn-primary"
+              // data-bs-toggle="modal"
+              // data-bs-target="#scheduleModal"
+              onClick={onScheduleNewMeeting}
+            >
               Schedule New Meeting
             </button>
           </div>
         </form>
       </div>
-      {/* <ToastContainer /> */}
+      <ToastContainer />
 
-      <div
-        className="modal fade"
-        id="exampleModal"
-        tabIndex={-1}
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="modal-title fs-5" id="exampleModalLabel">
-                Disclaimer
-              </h1>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              <p>
-                This is to inform that by clicking on Confirm, you will be redirected to the Convene in Teams app to
-                schedule a new meeting with existing details.
-              </p>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
-                Cancel
-              </button>
-              <button type="button" className="btn btn-primary" data-bs-dismiss="modal">
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Modal show={show} onHide={handleClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Schedule New Meeting</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            You will be redirected to the Convene in Teams app to schedule the new meeting with the details provided.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={onClickContinue}>
+            Continue
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </React.Fragment>
   );
 };

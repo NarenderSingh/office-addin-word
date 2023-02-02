@@ -15,7 +15,6 @@ export class GraphService {
   public getUser = async (auth: any): Promise<any> => {
     this.ensureClient(auth);
     const user: any = await this.client!.api("/me").select("displayName,mail,mailboxSettings,userPrincipalName").get();
-
     return user;
   };
 }
