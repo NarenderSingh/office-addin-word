@@ -151,17 +151,39 @@ const App = (props: IAppProps) => {
       scheduleTime: fields.scheduleTime,
       meetingDescription: fields.meetingDescription,
       meetingNotes: fields.meetingNotes,
-      includeDocument: fields.includeDocument == 1 ? true : false,
-      videoConferencing: fields.videoConferencing == 1 ? true : false,
+      includeDocument: fields.includeDocument == 1 ? "Y" : "N",
+      videoConferencing: fields.videoConferencing == 1 ? "Y" : "N",
       filePath: fields.filePath,
       timeZoneOffset: new Date().getTimezoneOffset(),
+      allDay: "N",
     };
 
-    const querySting = JSON.stringify(model);
-    const path =
-      "https://teams.microsoft.com/l/entity/7f7995e4-cef6-432f-b7f0-a2c3567b827d/index1?webUrl=https://lemon-glacier-073d48510.2.azurestaticapps.net/#/tab1?" +
-      querySting;
-    navigateToTeams(path);
+    const scheduleDate = new Date(fields.scheduleDate);
+    const mm = scheduleDate.getMonth() + 1;
+    const dd = scheduleDate.getDate();
+    const yyyy = scheduleDate.getFullYear();
+    const schedule = mm + "/" + dd + "/" + yyyy;
+    const scheduleDateTime = schedule + " " + encodeURI(model.scheduleTime);
+
+    const path = `https://teams.microsoft.com/l/entity/7f7995e4-cef6-432f-b7f0-a2c3567b827d/index1?webUrl=https://lemon-glacier-073d48510.2.azurestaticapps.net/#/tab1?
+        WS_TITLE=${encodeURI(model.meetingTitle)}&
+        WS_VENUE=${encodeURI(model.meetingVenue)}&
+        WS_PURPOSE=${encodeURI(model.meetingDescription)}&
+        WS_COMMENTARY=${encodeURI(model.meetingNotes)}&
+        WS_VENUE=${encodeURI(model.meetingVenue)}&
+        WS_SCHEDULE=${encodeURI(scheduleDateTime)}&
+        WS_ALL_DAY=${encodeURI(model.allDay)}&
+        WS_TIMEZONE=${encodeURI(model.allDay)}&
+        WS_INCLUDEDOC=${encodeURI(model.includeDocument)}&
+        WS_DOCPATH=${encodeURI(model.filePath)}
+        WS_VIDEOCONF=${encodeURI(model.videoConferencing)}
+        WS_TIMEZONEOFFSET=${encodeURI(model.timeZoneOffset.toString())}
+        WS_SCHEDULEDATE=${scheduleDate.toString()}
+        `;
+
+    const encodePath = encodeURI(path);
+
+    navigateToTeams(encodePath);
 
     window.setTimeout(() => {
       SetFields({
