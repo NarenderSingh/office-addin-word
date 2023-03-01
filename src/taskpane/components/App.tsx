@@ -3,6 +3,7 @@ import Progress from "./Progress";
 import { ToastContainer } from "react-toastify";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import axios from "axios";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -165,12 +166,14 @@ const App = (props: IAppProps) => {
     const schedule = mm + "/" + dd + "/" + yyyy;
     const scheduleDateTime = schedule + " " + encodeURI(model.scheduleTime);
 
+    console.log("program started");
+    axios.get("/teamsInfo.json").then((d) => console.log(d));
+
     const path = `https://teams.microsoft.com/l/entity/7f7995e4-cef6-432f-b7f0-a2c3567b827d/index1?webUrl=https://lemon-glacier-073d48510.2.azurestaticapps.net/#/tab1?
         WS_TITLE=${encodeURI(model.meetingTitle)}&
         WS_VENUE=${encodeURI(model.meetingVenue)}&
         WS_PURPOSE=${encodeURI(model.meetingDescription)}&
         WS_COMMENTARY=${encodeURI(model.meetingNotes)}&
-        WS_VENUE=${encodeURI(model.meetingVenue)}&
         WS_SCHEDULE=${encodeURI(scheduleDateTime)}&
         WS_ALL_DAY=${encodeURI(model.allDay)}&
         WS_TIMEZONE=${encodeURI(model.allDay)}&
