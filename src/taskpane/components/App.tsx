@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import axios from "axios";
+import moment from "moment-timezone";
 
 export interface IAppProps {
   isOfficeInitialized: boolean;
@@ -166,45 +167,43 @@ const App = (props: IAppProps) => {
     const schedule = mm + "/" + dd + "/" + yyyy;
     const scheduleDateTime = schedule + " " + encodeURI(model.scheduleTime);
 
-    console.log("program started");
-    axios.get("/public/cit-app-info.json").then((d) => console.log(d));
+    axios.get("cit.json").then((d) => {
+      const data: any = d?.data;
 
-    const path = `https://teams.microsoft.com/l/entity/7f7995e4-cef6-432f-b7f0-a2c3567b827d/index1?webUrl=https://lemon-glacier-073d48510.2.azurestaticapps.net/#/tab1?
-        WS_TITLE=${encodeURI(model.meetingTitle)}&
-        WS_VENUE=${encodeURI(model.meetingVenue)}&
-        WS_PURPOSE=${encodeURI(model.meetingDescription)}&
-        WS_COMMENTARY=${encodeURI(model.meetingNotes)}&
-        WS_SCHEDULE=${encodeURI(scheduleDateTime)}&
-        WS_ALL_DAY=${encodeURI(model.allDay)}&
-        WS_TIMEZONE=${encodeURI(model.allDay)}&
-        WS_INCLUDEDOC=${encodeURI(model.includeDocument)}&
-        WS_DOCPATH=${encodeURI(model.filePath)}
-        WS_VIDEOCONF=${encodeURI(model.videoConferencing)}
-        WS_TIMEZONEOFFSET=${encodeURI(model.timeZoneOffset.toString())}
-        WS_SCHEDULEDATE=${scheduleDate.toString()}
-        `;
+      const url = `${data?.entity}/${data?.appId}/${data?.tabIndex}?webUrl=${data?.webUrl}?WS_TITLE=${encodeURI(
+        model.meetingTitle
+      )}&WS_VENUE=${encodeURI(model.meetingVenue)}&WS_PURPOSE=${encodeURI(
+        model.meetingDescription
+      )}&WS_COMMENTARY=${encodeURI(model.meetingNotes)}&WS_SCHEDULE=${encodeURI(
+        scheduleDateTime
+      )}&WS_ALL_DAY=${encodeURI(model.allDay)}&WS_TIMEZONE=${encodeURI(moment.tz.guess())}&WS_INCLUDEDOC=${encodeURI(
+        model.includeDocument
+      )}&WS_DOCPATH=${encodeURI(model.filePath)}&WS_VIDEOCONF=${encodeURI(
+        model.videoConferencing
+      )}&WS_TIMEZONEOFFSET=${encodeURI(model.timeZoneOffset.toString())}`;
 
-    const encodePath = encodeURI(path);
+      const encodePath = url.trim();
+      console.log(encodePath);
+      navigateToTeams(encodePath);
 
-    navigateToTeams(encodePath);
-
-    window.setTimeout(() => {
-      SetFields({
-        meetingTitle: "",
-        meetingVenue: "",
-        scheduleDate: "",
-        scheduleTime: "",
-        meetingDescription: "",
-        meetingNotes: "",
-        includeDocument: 1,
-        videoConferencing: 0,
-        isMeetingTitleDirty: false,
-        isScheduleDateDirty: false,
-        isScheduleTimeDirty: false,
-        filePath: "",
-      });
-      handleClose();
-    }, 5000);
+      window.setTimeout(() => {
+        SetFields({
+          meetingTitle: "",
+          meetingVenue: "",
+          scheduleDate: "",
+          scheduleTime: "",
+          meetingDescription: "",
+          meetingNotes: "",
+          includeDocument: 1,
+          videoConferencing: 0,
+          isMeetingTitleDirty: false,
+          isScheduleDateDirty: false,
+          isScheduleTimeDirty: false,
+          filePath: "",
+        });
+        handleClose();
+      }, 5000);
+    });
   };
 
   const navigateToTeams = (href: string) => {

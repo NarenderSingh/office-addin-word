@@ -80,7 +80,7 @@ module.exports = async (env, options) => {
             to: "assets/[name][ext][query]",
           },
           {
-            from: "public/*",
+            from: "cit.json",
             to: "",
           },
           {
