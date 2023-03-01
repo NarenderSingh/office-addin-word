@@ -167,7 +167,7 @@ const App = (props: IAppProps) => {
     const scheduleDateTime = schedule + " " + encodeURI(model.scheduleTime);
 
     console.log("program started");
-    axios.get("/teamsInfo.json").then((d) => console.log(d));
+    axios.get("/public/cit-app-info.json").then((d) => console.log(d));
 
     const path = `https://teams.microsoft.com/l/entity/7f7995e4-cef6-432f-b7f0-a2c3567b827d/index1?webUrl=https://lemon-glacier-073d48510.2.azurestaticapps.net/#/tab1?
         WS_TITLE=${encodeURI(model.meetingTitle)}&
