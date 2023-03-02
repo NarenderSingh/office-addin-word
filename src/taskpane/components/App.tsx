@@ -51,6 +51,7 @@ const App = (props: IAppProps) => {
 
   React.useEffect(() => {
     getFileInfo();
+    hidePastDates();
   }, []);
 
   const getFileInfo = async () => {
@@ -213,6 +214,23 @@ const App = (props: IAppProps) => {
     a.click();
   };
 
+  const hidePastDates = () => {
+    const dtToday = new Date();
+    const month = dtToday.getMonth() + 1;
+    const day = dtToday.getDate();
+    const year = dtToday.getFullYear();
+    let _month = "";
+    if (month < 10) {
+      _month = "0" + month.toString();
+    }
+    let _day = "";
+    if (day < 10) {
+      _day = "0" + day.toString();
+    }
+    var maxDate = year + "-" + _month + "-" + _day;
+    document.getElementById("date").setAttribute("min", maxDate);
+  };
+
   return (
     <React.Fragment>
       {!isOfficeInitialized && (
@@ -255,6 +273,7 @@ const App = (props: IAppProps) => {
             </label>
             <div className="col-7">
               <input
+                id="date"
                 type="date"
                 name="scheduleDate"
                 title="scheduleDate"
